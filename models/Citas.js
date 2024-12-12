@@ -7,17 +7,24 @@ const CitasSchema = new Schema({
         type: String,
         required: true,
     },
+    nombre: {
+        type: String,
+        required: false,
+    },
     hora_inicio: {
         type: String,
         required: true
     },
-    hora_final: {
+     hora_final: {
+        type: String,
+        required: false,
+    },
+    color: {
         type: String,
         required: false,
     },
     nota:{
         type: String,
-        required: true
     }
 });
 
