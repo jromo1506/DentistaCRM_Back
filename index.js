@@ -13,7 +13,6 @@ app.use(express.json());
 
 // Definir rutas
 app.use('/DentalArce', require('./routes/routes'));
-app.use('/DentalArce', require('./routes/citasRoutes')); // Agregar rutas de citas
 
 // Arrancar el servidor
 app.listen(5000, () => {
