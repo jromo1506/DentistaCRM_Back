@@ -1,14 +1,56 @@
 const express = require('express');
-const Usuario = require('../models/Usuario'); // Asegúrate de la ruta correcta
+const bcrypt = require('bcrypt');
+const Usuario = require('../models/Usuario');
 
 
 exports.crearUsuario = async (req, res) => {
     try {
-        const nuevoUsuario = new Usuario(req.body);
+        const usuarioExistente = await Usuario.findOne({ usuario: req.body.usuario });
+        if (usuarioExistente) {
+            return res.status(400).json({ message: 'El usuario ya existe' });
+        }
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+        const nuevoUsuario = new Usuario({
+            usuario: req.body.usuario,
+            password: hashedPassword,
+            tipoUsuario: req.body.tipoUsuario,
+            telefono: req.body.telefono,
+        });
+
         const usuarioGuardado = await nuevoUsuario.save();
         res.status(201).json(usuarioGuardado);
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al crear el usuario', error });
+        res.status(500).json({ message: 'Error al crear el usuario', error });
+    }
+};
+
+exports.autenticarUsuario = async (req, res) => {
+    const { usuario, password } = req.body;
+
+    try {
+        const usuarioEncontrado = await Usuario.findOne({ usuario });
+        if (!usuarioEncontrado) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        const esValidaLaPassword = await bcrypt.compare(password, usuarioEncontrado.password);
+
+        if (!esValidaLaPassword) {
+            return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
+
+        res.status(200).json({
+            message: 'Autenticación exitosa',
+            usuario: {
+                id: usuarioEncontrado._id,
+                usuario: usuarioEncontrado.usuario,
+                tipoUsuario: usuarioEncontrado.tipoUsuario, // Incluye el tipo de usuario
+                telefono: usuarioEncontrado.telefono,
+            },
+        });
+    } catch (error) {
+        console.error('Error al autenticar el usuario:', error);
+        res.status(500).json({ message: 'Error al autenticar el usuario', error: error.message });
     }
 };
 
