@@ -1,0 +1,10 @@
+###
+POST http://localhost:5000/DentalArce/cita/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "usuario": "Juan Arce",   
+    "password": "#F7C027",     
+    "tipoUsuario": "borrar",   
+    "telefono": "4492454"  
+}
